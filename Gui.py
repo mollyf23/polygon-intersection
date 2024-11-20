@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+from Shamos_Hoey import intersection_ShamosHoey
 
 
 class PolygonIntersectionGui:
@@ -24,7 +25,7 @@ class PolygonIntersectionGui:
         self.poly2_entry.grid(row=1, column=1, padx=5)
 
         # Plot Button
-        self.plot_button = ttk.Button(self.input_panel, text="Plot Polygons", command=self.plot_polygons)
+        self.plot_button = ttk.Button(self.input_panel, text="Plot Polygons", command=self.shamos_hoey)
         self.plot_button.grid(row=2, column=0, columnspan=2, pady=5)
 
         # use a matplotlib figure to show the algorithms
@@ -72,6 +73,11 @@ class PolygonIntersectionGui:
 
         self.ax.legend()
         self.canvas.draw()
+
+    def shamos_hoey(self):
+        poly1_points = self.parse_points(self.poly1_entry.get())
+        poly2_points = self.parse_points(self.poly2_entry.get())
+        intersection_ShamosHoey(self.ax, poly1_points, poly2_points)
 
 
 if __name__ == "__main__":
