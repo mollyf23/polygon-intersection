@@ -24,7 +24,7 @@ class PolygonIntersectionGui:
         self.poly2_entry.grid(row=1, column=1, padx=5)
 
         # Plot Button
-        self.plot_button = ttk.Button(self.input_panel, text="Plot Polygons", command=self.shamos_hoey_test)
+        self.plot_button = ttk.Button(self.input_panel, text="Plot Polygons", command=self.plot_polygons)
         self.plot_button.grid(row=2, column=0, columnspan=2, pady=5)
 
         # use a matplotlib figure to show the algorithms
@@ -47,7 +47,32 @@ class PolygonIntersectionGui:
         except Exception as e:
             messagebox.showerror("Error", f"Invalid input format: {e}")
             return None
-        
+
+    #delete later.... sample code  for trying out the plot
+    def plot_polygons(self):
+        poly1_points = self.parse_points(self.poly1_entry.get())
+        poly2_points = self.parse_points(self.poly2_entry.get())
+
+        if poly1_points is None or poly2_points is None:
+            return
+
+        self.ax.clear()
+        self.ax.grid(True)
+        self.ax.set_title("Polygons")
+        self.ax.set_xlabel("X-axis")
+        self.ax.set_ylabel("Y-axis")
+
+        if poly1_points:
+            x1, y1 = zip(*poly1_points)
+            self.ax.plot(x1 + (x1[0],), y1 + (y1[0],), label="Polygon 1", marker='o')
+
+        if poly2_points:
+            x2, y2 = zip(*poly2_points)
+            self.ax.plot(x2 + (x2[0],), y2 + (y2[0],), label="Polygon 2", marker='o')
+
+        self.ax.legend()
+        self.canvas.draw()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
