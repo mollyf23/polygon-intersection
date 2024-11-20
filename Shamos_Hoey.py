@@ -155,7 +155,7 @@ class EventQueue:
         return event in self.queue
 
     def is_leftendpoint(self, event: Event):
-        return (event.segment.lefttEndPoint.x() == event.point.x() and event.segment.lefttEndPoint.y() == event.point.y())
+        return (event.segment.leftEndPoint().x() == event.point.x() and event.segment.leftEndPoint().y() == event.point.y())
     
     def is_rightendpoint(self, event: Event):
-        return (event.segment.rightEndPoint.x() == event.point.x() and event.segment.rightEndPoint.y() == event.point.y())
+        return (event.segment.rightEndPoint().x() == event.point.x() and event.segment.rightEndPoint().y() == event.point.y())
