@@ -77,13 +77,6 @@ class Segment:
         
         return Point(numX / den, numY / den)        
     
-    def get_y_from_x(self, x):
-        if self.leftEndPoint().x() == self.rightEndPoint().x():  #vertical line segment
-            return min(self.leftEndPoint().y(), self.rightEndPoint().y())
-        else:
-            #use slope to find y at the current x
-            return self.leftEndPoint().y() + (self.rightEndPoint().y() - self.leftEndPoint().y()) * (x - self.leftEndPoint().x()) / (self.rightEndPoint().x() - self.leftEndPoint().x())
-    
 s1 = Segment(Point(0, 0), Point(4, 0))
 s2 = Segment(Point(0, 0), Point(1, -1))
 

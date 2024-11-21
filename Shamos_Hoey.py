@@ -1,3 +1,4 @@
+from matplotlib.axes import Axes
 from gui_helpers import draw_point, draw_segment, draw_polygon
 import heapq
 from sortedcontainers import SortedList
@@ -25,8 +26,9 @@ class Event:
     def __str__(self):
         return self.point
 
-def intersection_ShamosHoey(ax, list1, list2, draw):  
+def intersection_ShamosHoey(ax: Axes, list1, list2, draw):  
     if (draw):
+        ax.clear()
         draw_polygon(ax, list1)
         draw_polygon(ax, list2)
     endpoints = []
@@ -41,9 +43,6 @@ def intersection_ShamosHoey(ax, list1, list2, draw):
 
     while (len(event_queue.queue) > 0):
         event = event_queue.min()
-        ##need x of the current sweep line position
-        sweep_line_status.current_x = event.point.x()
-        #left endpoint
         if (event_queue.is_leftendpoint(event)):
             segE: Segment = event.segment
             sweep_line_status.insert(segE)
@@ -86,7 +85,7 @@ def intersection_ShamosHoey(ax, list1, list2, draw):
                 if (not event_queue.member(event)):
                     event_queue.insert(event)
             #swap the two intersecting lines
-            sweep_line_status.swap(segE1, segE2)
+            sweep_line_status.swap(event, segE1, segE2)
     return output
 
 def segment_builder(list, endpoints):
@@ -108,14 +107,14 @@ def segment_builder(list, endpoints):
 class SweepLineStatus:
     def __init__(self):
         #store segment info by using the endpoint info
-        self.current_x = None
-        self.segments = SortedList(key=lambda segment: self.compare_segments_by_y_at_x(segment, segment, self.current_x))
+        self.segments = SortedList(key=lambda segment: (segment.leftEndPoint().y(), segment.rightEndPoint().y()))
 
     def insert(self, segment: Segment):
         self.segments.add(segment)
 
     def delete(self, segment: Segment):
-        self.segments.remove(segment)
+        i = self.segments.index(segment)
+        del self.segments[i]
 
     #find segment above
     def above(self, segment: Segment):
@@ -131,27 +130,22 @@ class SweepLineStatus:
             return self.segments[i-1]
         return None
 
-    def set_current_x(self, x):
-        self.current_x = x
-
-    def swap(self, segE1, segE2):
-            if (self.segments.index(segE1) > self.segments.index(segE2)):
+    def swap(self, event, segE1: Segment, segE2: Segment):
+            if (self.getSegmentIndex(segE1) > self.getSegmentIndex(segE2)):
                 self.delete(segE1)
                 self.delete(segE2)
+                segE1.endPoints[0] = event.point
+                segE2.endPoints[0] = event.point
                 self.insert(segE2)
                 self.insert(segE1)
             else:
                 self.delete(segE2)
                 self.delete(segE1)
+                segE1.endPoints[0] = event.point
+                segE2.endPoints[0] = event.point
                 self.insert(segE1)
                 self.insert(segE2)
-
-    def compare_segments_by_y_at_x(self, segment1: Segment, segment2: Segment, x):
-        y1 = segment1.get_y_from_x(x)
-        y2 = segment2.get_y_from_x(x)
-
-        return y1-y2
-
+        
 class EventQueue:
     def __init__(self, events):
         self.queue = events
