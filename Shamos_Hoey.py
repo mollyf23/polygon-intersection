@@ -131,7 +131,7 @@ class SweepLineStatus:
         return None
 
     def swap(self, event, segE1: Segment, segE2: Segment):
-            if (self.getSegmentIndex(segE1) > self.getSegmentIndex(segE2)):
+            if (self.segments.index(segE1) > self.segments.index(segE2)):
                 self.delete(segE1)
                 self.delete(segE2)
                 segE1.endPoints[0] = event.point
