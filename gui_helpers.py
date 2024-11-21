@@ -13,3 +13,9 @@ def draw_segment(ax: Axes, segment: Segment, color="red", linewidth=1):
     (x2, y2) = (segment.rightEndPoint().x(), segment.rightEndPoint().y())
     ax.plot([x1, x2], [y1, y2], color=color, linewidth=linewidth)
     ax.figure.canvas.draw()
+
+def draw_polygon(ax: Axes, poly_points):
+    if poly_points:
+        x1, y1 = zip(*poly_points)
+        ax.plot(x1 + (x1[0],), y1 + (y1[0],), marker='o')
+        ax.figure.canvas.draw()

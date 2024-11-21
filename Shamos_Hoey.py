@@ -1,4 +1,4 @@
-from gui_helpers import draw_point, draw_segment
+from gui_helpers import draw_point, draw_segment, draw_polygon
 import heapq
 from sortedcontainers import SortedList
 from Point import Point
@@ -16,15 +16,18 @@ class Event:
 
     #override less than function for event queue sorting
     def __lt__(self, other):
-        if self.point.x() == other.point.x():
-            return self.point.y() < other.point.y()
-        return self.point.x() < other.point.x()
+        return self.point < other.point
     
     #override equal function for member function 
     def __eq__(self, other):
-        return self.point.x() == other.point.x() and self.point.y() == other.point.y()
+        return self.point == other.point
+    
+    def __str__(self):
+        return self.point
 
 def intersection_ShamosHoey(ax, list1, list2):  
+    draw_polygon(ax, list1)
+    draw_polygon(ax, list2)
     endpoints = []
     #use helper method to populate
     segment_builder(list1, endpoints)
@@ -37,6 +40,8 @@ def intersection_ShamosHoey(ax, list1, list2):
 
     while (len(event_queue.queue) > 0):
         event = event_queue.min()
+        ##need x of the current sweep line position
+        sweep_line_status.current_x = event.point.x()
         #left endpoint
         if (event_queue.is_leftendpoint(event)):
             segE: Segment = event.segment
@@ -45,10 +50,10 @@ def intersection_ShamosHoey(ax, list1, list2):
             segB = sweep_line_status.below(segE)
 
             #find intersection events
-            if (segA != None and segE.intersects(segA, True)):
+            if (segA is not None and segE.intersects(segA, True)):
                 event = Event(segE.intersection(segA), segE, segA)
                 event_queue.insert(event)
-            if (segB != None and segE.intersects(segB, True)):
+            if (segB is not None and segE.intersects(segB, True)):
                 event = Event(segE.intersection(segB), segE, segB)
                 event_queue.insert(event)
         #right endpoint
@@ -59,7 +64,7 @@ def intersection_ShamosHoey(ax, list1, list2):
             sweep_line_status.delete(segE)
 
             #find intersection events
-            if (segA != None and segB != None and segA.intersects(segB, True)):
+            if (segA is not None and segB is not None and segA.intersects(segB, True)):
                 event = Event(segA.intersection(segB), segA, segB)
                 if (not event_queue.member(event)):
                     event_queue.insert(event)
@@ -71,11 +76,11 @@ def intersection_ShamosHoey(ax, list1, list2):
             segA = sweep_line_status.above(segE1)
             segB = sweep_line_status.below(segE2)
              #find intersection events
-            if (segA != None and segE1.intersects(segA, True)):
+            if (segA is not None and segE1.intersects(segA, True)):
                 event = Event(segE1.intersection(segA), segE1, segA)
                 if (not event_queue.member(event)):
                     event_queue.insert(event)
-            if (segB != None and segE2.intersects(segB, True)):
+            if (segB is not None and segE2.intersects(segB, True)):
                 event = Event(segE2.intersection(segB), segE2, segB)
                 if (not event_queue.member(event)):
                     event_queue.insert(event)
@@ -89,7 +94,11 @@ def segment_builder(list, endpoints):
         x2, y2 = list[(i + 1) % len(list)] 
         point1 = Point(x1,y1)
         point2 = Point(x2,y2)
-        segment = Segment(point1,point2)
+        #sort points left to right
+        if (point1.x() < point2.x()):
+            segment = Segment(point1,point2)
+        else: segment = Segment(point2,point1)
+        
         endpoint1 = Event(point1, segment)
         endpoint2 = Event(point2, segment)
         endpoints.append(endpoint1)
@@ -99,7 +108,7 @@ class SweepLineStatus:
     def __init__(self):
         #store segment info by using the endpoint info
         self.current_x = None
-        self.segments = SortedList(key=lambda segment: segment.get_y_from_x(self.current_x))
+        self.segments = SortedList(key=lambda segment: self.compare_segments_by_y_at_x(segment, segment, self.current_x))
 
     def insert(self, segment: Segment):
         self.segments.add(segment)
@@ -110,14 +119,14 @@ class SweepLineStatus:
     #find segment above
     def above(self, segment: Segment):
         i = self.segments.index(segment)
-        if (i < self.segments.count):
+        if (i < len(self.segments)-1):
             return self.segments[i+1]
         return None
 
     #find segment below
     def below(self, segment: Segment):
         i = self.segments.index(segment)
-        if (-1 < i):
+        if (0 < i):
             return self.segments[i-1]
         return None
 
@@ -136,6 +145,11 @@ class SweepLineStatus:
                 self.insert(segE1)
                 self.insert(segE2)
 
+    def compare_segments_by_y_at_x(self, segment1: Segment, segment2: Segment, x):
+        y1 = segment1.get_y_from_x(x)
+        y2 = segment2.get_y_from_x(x)
+
+        return y1-y2
 
 class EventQueue:
     def __init__(self, events):
@@ -155,7 +169,7 @@ class EventQueue:
         return event in self.queue
 
     def is_leftendpoint(self, event: Event):
-        return (event.segment.leftEndPoint().x() == event.point.x() and event.segment.leftEndPoint().y() == event.point.y())
+        return (event.segment.leftEndPoint() == event.point)
     
     def is_rightendpoint(self, event: Event):
-        return (event.segment.rightEndPoint().x() == event.point.x() and event.segment.rightEndPoint().y() == event.point.y())
+        return (event.segment.rightEndPoint() == event.point)

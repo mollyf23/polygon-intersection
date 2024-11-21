@@ -49,35 +49,12 @@ class PolygonIntersectionGui:
             messagebox.showerror("Error", f"Invalid input format: {e}")
             return None
 
-    #delete later.... sample code  for trying out the plot
-    def plot_polygons(self):
-        poly1_points = self.parse_points(self.poly1_entry.get())
-        poly2_points = self.parse_points(self.poly2_entry.get())
-
-        if poly1_points is None or poly2_points is None:
-            return
-
-        self.ax.clear()
-        self.ax.grid(True)
-        self.ax.set_title("Polygons")
-        self.ax.set_xlabel("X-axis")
-        self.ax.set_ylabel("Y-axis")
-
-        if poly1_points:
-            x1, y1 = zip(*poly1_points)
-            self.ax.plot(x1 + (x1[0],), y1 + (y1[0],), label="Polygon 1", marker='o')
-
-        if poly2_points:
-            x2, y2 = zip(*poly2_points)
-            self.ax.plot(x2 + (x2[0],), y2 + (y2[0],), label="Polygon 2", marker='o')
-
-        self.ax.legend()
-        self.canvas.draw()
-
     def shamos_hoey(self):
-        poly1_points = self.parse_points(self.poly1_entry.get())
-        poly2_points = self.parse_points(self.poly2_entry.get())
-        intersection_ShamosHoey(self.ax, poly1_points, poly2_points)
+        poly1_points = ((2,2),(8,2),(5,8))
+        poly2_points = ((4,4),(10,4),(6,10))
+        events = intersection_ShamosHoey(self.ax, poly1_points, poly2_points)
+        for e in events:
+            print(f"{e.point}",)
 
 
 if __name__ == "__main__":

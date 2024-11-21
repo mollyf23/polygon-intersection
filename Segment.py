@@ -24,6 +24,12 @@ class Segment:
         #    Store valid results
         self.endPoints = [left, right]
 
+    def __eq__(self, sgmnt):
+        if not (isinstance(sgmnt, Segment)):
+            raise TypeError("The input value has to be a Segment object.")
+        
+        return self.leftEndPoint == sgmnt.leftEndPoint and self.rightEndPoint == sgmnt.rightEndPoint
+
     #    Determines if the given point is to the left or right of the segment.
     def side(self, pt):
         if not isinstance(pt, Point):
@@ -72,11 +78,11 @@ class Segment:
         return Point(numX / den, numY / den)        
     
     def get_y_from_x(self, x):
-        if self.leftEndPoint.x() == self.rightEndpoint.x():  #vertical line segment
-            return min(self.leftEndPoint.y(), self.rightEndPoint.y())
+        if self.leftEndPoint().x() == self.rightEndPoint().x():  #vertical line segment
+            return min(self.leftEndPoint().y(), self.rightEndPoint().y())
         else:
             #use slope to find y at the current x
-            return self.leftEndPoint.y() + (self.rightEndPoint.y() - self.leftEndPoint.y()) * (x - self.leftEndPoint.x()) / (self.rightEndpoint.x() - self.leftEndPoint.x())
+            return self.leftEndPoint().y() + (self.rightEndPoint().y() - self.leftEndPoint().y()) * (x - self.leftEndPoint().x()) / (self.rightEndPoint().x() - self.leftEndPoint().x())
     
 s1 = Segment(Point(0, 0), Point(4, 0))
 s2 = Segment(Point(0, 0), Point(1, -1))
