@@ -25,9 +25,10 @@ class Event:
     def __str__(self):
         return self.point
 
-def intersection_ShamosHoey(ax, list1, list2):  
-    draw_polygon(ax, list1)
-    draw_polygon(ax, list2)
+def intersection_ShamosHoey(ax, list1, list2, draw):  
+    if (draw):
+        draw_polygon(ax, list1)
+        draw_polygon(ax, list2)
     endpoints = []
     #use helper method to populate
     segment_builder(list1, endpoints)
