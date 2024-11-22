@@ -36,7 +36,7 @@ class Event:
 
 def intersection_ShamosHoey(ax: Axes, list1, list2, draw):  
     if (draw):
-        ax.clear()
+        ax.cla()
         draw_polygon(ax, list1)
         draw_polygon(ax, list2)
     endpoints = []
