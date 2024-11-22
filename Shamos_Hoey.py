@@ -17,7 +17,15 @@ class Event:
 
     #override less than function for event queue sorting
     def __lt__(self, other):
-        return self.point < other.point
+        #if two endpoints have the same x value, prioritize left endpoints
+        if (self.point.x() == other.point.x()):
+            if (self.point == self.segment.leftEndPoint()):
+                return True
+            elif (other.point == other.segment.leftEndPoint()):
+                return False
+            else: return self.point.y() < other.point.y()
+            
+        return self.point.x() < other.point.x()
     
     #override equal function for member function 
     def __eq__(self, other):
@@ -107,7 +115,12 @@ def segment_builder(list, endpoints):
 class SweepLineStatus:
     def __init__(self):
         #store segment info by using the endpoint info
-        self.segments = SortedList(key=lambda segment: (segment.leftEndPoint().y(), segment.rightEndPoint().y()))
+        self.segments = SortedList(key=lambda segment: (
+        segment.leftEndPoint().y(),
+        segment.rightEndPoint().y(), 
+        segment.leftEndPoint().x(),  
+        segment.rightEndPoint().x()
+        ))
 
     def insert(self, segment: Segment):
         self.segments.add(segment)
