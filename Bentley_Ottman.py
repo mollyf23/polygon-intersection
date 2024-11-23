@@ -34,7 +34,7 @@ class Event:
     def __str__(self):
         return self.point
 
-def intersection_ShamosHoey(ax: Axes, list1, list2, draw):  
+def intersection_BentleyOttman(ax: Axes, list1, list2, draw):  
     if (draw):
         ax.cla()
         draw_polygon(ax, list1, "black")
@@ -93,7 +93,7 @@ def intersection_ShamosHoey(ax: Axes, list1, list2, draw):
             segE2 = event.segment2
             segA = sweep_line_status.above(segE1)
             segB = sweep_line_status.below(segE2)
-            draw_intersection_event(ax, event)
+            if (draw): draw_intersection_event(ax, event)
              #find intersection events
             if (segA is not None and segE1.intersects(segA, True)):
                 event = Event(segE1.intersection(segA), segE1, segA)
@@ -110,6 +110,7 @@ def intersection_ShamosHoey(ax: Axes, list1, list2, draw):
             #swap the two intersecting lines
             sweep_line_status.swap(event, segE1, segE2)
     return output
+
 
 def segment_builder(list, endpoints):
     for i in range(len(list)):

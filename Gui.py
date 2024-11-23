@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
-from Shamos_Hoey import intersection_ShamosHoey
+from Bentley_Ottman import intersection_BentleyOttman
 import time 
 
 
@@ -55,7 +55,7 @@ class PolygonIntersectionGui:
 
         # Plot Button
         #the draw boolean determines if it will run with drawing enabled    
-        shamos_hoey_button = ttk.Button(input_panel, text="Shamos Hoey", command=lambda: self.shamos_hoey(draw, poly1_entry, poly2_entry)).grid(row=2, column=0, pady=5, padx=(30,10))
+        bentley_ottman_button = ttk.Button(input_panel, text="Bentley Ottman", command=lambda: self.bentley_ottman(draw, poly1_entry, poly2_entry)).grid(row=2, column=0, pady=5, padx=(30,10))
         sh_button = ttk.Button(input_panel, text="Sutherland Hodgman", command=lambda: self.sutherland_hodgman(draw, poly1_entry, poly2_entry)).grid(row=2, column=1, pady=5, padx=(30,10))
 
 
@@ -68,14 +68,14 @@ class PolygonIntersectionGui:
         ttk.Label(results_frame, text="Time Taken (ms)").grid(row=2, column=0, padx=30)
 
         # Labels for timing results
-        self.shamos_hoey_time_label = ttk.Label(results_frame, text="Not computed")
-        self.shamos_hoey_time_label.grid(row=2, column=1, padx=5)
+        self.bentley_ottman_time_label = ttk.Label(results_frame, text="Not computed")
+        self.bentley_ottman_time_label.grid(row=2, column=1, padx=5)
 
         self.sutherland_hodgman_time_label = ttk.Label(results_frame, text="Not computed")
         self.sutherland_hodgman_time_label.grid(row=2, column=2, padx=5)
 
         # Algorithm names
-        ttk.Label(results_frame, text="Shamos Hoey").grid(row=0, column=1, padx=30)
+        ttk.Label(results_frame, text="Bentley Ottman").grid(row=0, column=1, padx=30)
         ttk.Label(results_frame, text="Sutherland Hodgman").grid(row=0, column=2, padx=30)
         
     def parse_points(self, points_str):
@@ -87,14 +87,14 @@ class PolygonIntersectionGui:
             messagebox.showerror("Error", f"Invalid input format: {e}")
             return None
 
-    def shamos_hoey(self, draw, poly_points1, poly_points2):
+    def bentley_ottman(self, draw, poly_points1, poly_points2):
         start_time = time.perf_counter()
         poly1_points = self.parse_points(poly_points1.get())
         poly2_points = self.parse_points(poly_points2.get())
-        events = intersection_ShamosHoey(self.ax, poly1_points, poly2_points, draw)
+        events = intersection_BentleyOttman(self.ax, poly1_points, poly2_points, draw)
         end_time = time.perf_counter()
         elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
-        self.shamos_hoey_time_label.config(text=f"{elapsed_time:.2f} ms")
+        self.bentley_ottman_time_label.config(text=f"{elapsed_time:.2f} ms")
         for e in events:
             print(f"{e}",)
 
@@ -107,7 +107,7 @@ class PolygonIntersectionGui:
         events go here
         end_time = time.perf_counter()
         elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
-        if (not draw): self.shamos_hoey_time_label.config(text=f"{elapsed_time:.2f} ms")
+        if (not draw): self.bentley_ottman_time_label.config(text=f"{elapsed_time:.2f} ms")
         for e in events:
             print(f"{e.point}",) """
 
