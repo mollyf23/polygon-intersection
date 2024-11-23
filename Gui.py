@@ -96,7 +96,7 @@ class PolygonIntersectionGui:
         elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
         self.shamos_hoey_time_label.config(text=f"{elapsed_time:.2f} ms")
         for e in events:
-            print(f"{e.point}",)
+            print(f"{e}",)
 
 
     def sutherland_hodgman(self, draw, poly_points1, poly_points2):

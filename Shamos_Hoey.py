@@ -1,5 +1,5 @@
 from matplotlib.axes import Axes
-from gui_helpers import draw_point, draw_segment, draw_polygon
+from gui_helpers import draw_left_endpoint, draw_right_endpoint, draw_intersection_point,draw_polygon, draw_intersection_event
 import heapq
 from sortedcontainers import SortedList
 from Point import Point
@@ -37,8 +37,8 @@ class Event:
 def intersection_ShamosHoey(ax: Axes, list1, list2, draw):  
     if (draw):
         ax.cla()
-        draw_polygon(ax, list1)
-        draw_polygon(ax, list2)
+        draw_polygon(ax, list1, "black")
+        draw_polygon(ax, list2, "black")
     endpoints = []
     #use helper method to populate
     segment_builder(list1, endpoints)
@@ -52,6 +52,8 @@ def intersection_ShamosHoey(ax: Axes, list1, list2, draw):
     while (len(event_queue.queue) > 0):
         event = event_queue.min()
         if (event_queue.is_leftendpoint(event)):
+            if (draw):
+                draw_left_endpoint(ax, event)
             segE: Segment = event.segment
             sweep_line_status.insert(segE)
             segA = sweep_line_status.above(segE)
@@ -60,15 +62,21 @@ def intersection_ShamosHoey(ax: Axes, list1, list2, draw):
             #find intersection events
             if (segA is not None and segE.intersects(segA, True)):
                 event = Event(segE.intersection(segA), segE, segA)
+                if (draw):
+                    draw_intersection_point(ax, event)
                 event_queue.insert(event)
             if (segB is not None and segE.intersects(segB, True)):
                 event = Event(segE.intersection(segB), segE, segB)
+                if (draw):
+                    draw_intersection_point(ax, event)
                 event_queue.insert(event)
         #right endpoint
         elif (event_queue.is_rightendpoint(event)):
             segE: Segment = event.segment
             segA = sweep_line_status.above(segE)
             segB = sweep_line_status.below(segE)
+            if (draw):
+                draw_right_endpoint(ax, event)
             sweep_line_status.delete(segE)
 
             #find intersection events
@@ -76,22 +84,29 @@ def intersection_ShamosHoey(ax: Axes, list1, list2, draw):
                 event = Event(segA.intersection(segB), segA, segB)
                 if (not event_queue.member(event)):
                     event_queue.insert(event)
+                    if (draw):
+                        draw_intersection_point(ax, event)
         #intersection point
         else:
-            output.append(event)
+            output.append(event.point)
             segE1 = event.segment
             segE2 = event.segment2
             segA = sweep_line_status.above(segE1)
             segB = sweep_line_status.below(segE2)
+            draw_intersection_event(ax, event)
              #find intersection events
             if (segA is not None and segE1.intersects(segA, True)):
                 event = Event(segE1.intersection(segA), segE1, segA)
                 if (not event_queue.member(event)):
+                    if (draw):
+                        draw_intersection_point(ax, event)
                     event_queue.insert(event)
             if (segB is not None and segE2.intersects(segB, True)):
                 event = Event(segE2.intersection(segB), segE2, segB)
                 if (not event_queue.member(event)):
                     event_queue.insert(event)
+                    if (draw):
+                        draw_intersection_point(ax, event)
             #swap the two intersecting lines
             sweep_line_status.swap(event, segE1, segE2)
     return output
@@ -177,7 +192,7 @@ class EventQueue:
         return event in self.queue
 
     def is_leftendpoint(self, event: Event):
-        return (event.segment.leftEndPoint() == event.point)
+        return (event.segment2 is None and event.segment.leftEndPoint() == event.point)
     
     def is_rightendpoint(self, event: Event):
-        return (event.segment.rightEndPoint() == event.point)
+        return (event.segment2 is None and event.segment.rightEndPoint() == event.point)
