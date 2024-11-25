@@ -1,3 +1,4 @@
+import time
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -24,40 +25,44 @@ class Polygon:
     def vertex(self, i):
         if i >= 0 and i < len(self.vertices):
             return self.vertices[i]
-
+        
     def size(self):
         return len(self.vertices)
     
-    def plot(self, figure, canvas, color):
+    def clearPlot(self):
+        self.graph.remove()
+        
+#    def plot(self, figure, canvas, color):
+    def plot(self, ax, color):
         x = []
         y = []
+        
+        if len(self) > 0:
+            for p in self.vertices:
+                x.append(p.x())
+                y.append(p.y())
     
-        
-        for p in self.vertices:
-            x.append(p.x())
-            y.append(p.y())
-
-        x.append(self.vertices[0].x())
-        y.append(self.vertices[0].y())
-        
-        figure.plot(x, y, marker='o', linestyle='-', color = color, markersize=8, linewidth=2)
+            x.append(self.vertices[0].x())
+            y.append(self.vertices[0].y())
+            
+            self.graph, = ax.plot(x, y, marker='o', linestyle='-', color = color, markersize=8, linewidth=2)
+            ax.figure.canvas.draw()
 
         # Label the plot
-        canvas.title('Polygon Plot Example')
+        '''canvas.title('Polygon Plot Example')
         canvas.xlabel('X-axis')
         canvas.ylabel('Y-axis')
         
         # Show the plot
         canvas.grid(True)
-        canvas.show(block = False)
+        canvas.show(block = False) '''
         
-        canvas.pause(1)
+        #canvas.pause(1)
 
     def __len__(self):
         return len(self.vertices)
     
-    # Function to clip all the edges w.r.t one clip edge of clipping area
-    def clip(self, poly_points, clip1, clip2, canvas):
+    def clip(self, poly_points, clip1, clip2):
         new_points = []
         new_poly_size = 0
     
@@ -65,7 +70,10 @@ class Polygon:
         for i in range(len(poly_points)):
             #    Get the index of the next vertex so we're looping through the edges.
             k = (i+1) % len(poly_points)
-    
+            
+            if i== 6:   
+                pass
+            
             clipEdge = Segment(clip1, clip2)
             polyEdge = Segment(poly_points.vertex(i), poly_points.vertex(k))
     
@@ -112,20 +120,20 @@ class Polygon:
 
     #    Function to implement Sutherland–Hodgman algorithm
     #    clipper_points    polygon    the polygon to be intersected with the one represented by the object.
-    def intersection_SH(self, poly_points, clipper_points, fig, canvas):
+    def intersection_SH(self, poly_points, clipper_points):
         clipper_size = clipper_points.size()
-    
+
+        output = []    
         #    Loop through the vertices.
         for i in range(clipper_size):
             #    Get the index of the next vertex.  In effect, we're looping through the sides that make up the polygon.
             k = (i+1) % clipper_size
         
             #    Pass the polygon being clipped and the end points of the current edge to the clipping function.
-            poly_points = self.clip(poly_points, clipper_points.vertex(i), clipper_points.vertex(k), canvas)
-            
-            f = canvas.figure
-#            poly_points.plot(ax, canvas, 'r')
-            
+            poly_points = self.clip(poly_points, clipper_points.vertex(i), clipper_points.vertex(k))
+            output.append(poly_points)
+        return output
+
         # Printing vertices of clipped polygon
         if len(poly_points) == 0:
             print("no intersection")
@@ -133,32 +141,47 @@ class Polygon:
         else:
             for i in range(len(poly_points)):
                 print(poly_points.vertex(i))
-    
-        return poly_points
 
-#    Points for the polygon.
+#    TODO:  Uncomment one of the test cases.
+'''
+#    Test 1: Overlaping Triangles
 clipper_pts = Polygon([Point(0,0), Point(10, 0), Point(0, 10)])
 poly_pts = Polygon([Point(1,1), Point(11, 1), Point(1, 11)])
+'''
 
-#    poly contained in clip so result is poly.
+'''
+#    Test 2: Square Contained in Square
 clipper_pts = Polygon([Point(-1, -1), Point(2, -1), Point(2, 2), Point(-1, 2)])
 poly_pts = Polygon([Point(0, 0), Point(1, 0), Point(1, 1), Point(0, 1)])
+'''
 
-#    no intersection
+'''
+#    Test 3: Rectangle External to Square (no intersection)
 clipper_pts = Polygon([Point(-1, -1), Point(-1, -2), Point(-3, -2), Point(-3, -1)])
 poly_pts = Polygon([Point(0, 0), Point(1, 0), Point(1, 1), Point(0, 1)])
+'''
 
-#    Points for the polygon.
+'''
+#    Test 4: Square in Rotated Square, octagonal intersection
 clipper_pts = Polygon([Point(0,0), Point(1, 0), Point(1, 1), Point(0, 1)])
 poly_pts = Polygon([Point(1-math.sqrt(2),.5), Point(.5, math.sqrt(2)), Point(math.sqrt(2), .5), Point(.5, 1 - math.sqrt(2))])
+intersection = poly_pts.intersection_SH(poly_pts, clipper_pts)
+'''
 
+'''    TODO:  Uncomment this block to display the results visually.
 fig, ax = plt.subplots()
-#plt.figure(figsize=(10, 10))
-
-clipper_pts = Polygon([Point(0, 0), Point(2, 0), Point(2, 1), Point(1, 1), Point(1, 2), Point(3, 2), Point(3, 3), Point(0,3)])
-clipper_pts.plot(ax, plt, 'b')
-poly_pts.plot(ax, plt, 'g')
-intersection = poly_pts.intersection_SH(poly_pts, clipper_pts, fig, plt)
-intersection.plot(ax, plt, 'r')
-
+poly_pts.plot(ax, 'g')
+clipper_pts.plot(ax, 'b')
+intersection = poly_pts.intersection_SH(poly_pts, clipper_pts)
+intersection[len(intersection) - 1].plot(ax, 'r')
 plt.show()
+'''
+
+'''
+for i in range(len(intersection)):
+    clipper_pts.plot(ax, 'b')
+    intersection[i].plot(ax, 'r')
+
+    plt.pause(2)
+    ax.clear()
+'''

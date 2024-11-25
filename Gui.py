@@ -4,7 +4,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 from Bentley_Ottman import intersection_BentleyOttman
 import time
-
+from Point import Point
+from Polygon import Polygon
 
 class PolygonIntersectionGui:
     def __init__(self, root):
@@ -126,13 +127,52 @@ class PolygonIntersectionGui:
         else: self.display_intersection_points(events, self.intersection_noplot)
 
     def sutherland_hodgman(self, draw, poly_points1, poly_points2):
-        """
-        Placeholder for Sutherland-Hodgman algorithm implementation.
-        """
-        pass
+        #    Create polygon from first set of points.
+        poly1_points = self.parse_points(poly_points1.get())
 
+        pts = []
+        for i in range(0, len(poly1_points[0]), 2):
+            pts.append(Point(poly1_points[0][i], poly1_points[0][i + 1]))
 
+        clipper_pts = Polygon(pts)
+
+        #    Create polygon from first set of points.
+        poly2_points = self.parse_points(poly_points2.get())
+        pts = []
+        for i in range(0, len(poly2_points[0]), 2):
+            pts.append(Point(poly2_points[0][i], poly2_points[0][i + 1]))
+        
+        polygon_pts = Polygon(pts)
+        
+        #    Draw the original two polygons.
+        self.ax.clear()
+        clipper_pts.plot(self.ax, "g")
+        polygon_pts.plot(self.ax, "b")
+
+        start_time = time.perf_counter()
+
+        events = polygon_pts.intersection_SH(polygon_pts, clipper_pts)
+        
+        end_time = time.perf_counter()
+        elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
+        self.sutherland_hodgman_time_label.config(text=f"{elapsed_time:.2f} ms")
+        
+        events[len(events) - 1].plot(self.ax, 'r')
+        
+        '''    ANIMATION SEDCTION
+        #for e in events:
+        for i in range(len(events)):
+            if i != 0:
+                events[i - 1].clearPlot()
+                
+            events[i].plot(self.ax, 'r')
+        
+            plt.pause(2)
+            #self.ax.clear()
+        '''
+        
 if __name__ == "__main__":
     root = tk.Tk()
     app = PolygonIntersectionGui(root)
     root.mainloop()
+
