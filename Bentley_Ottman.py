@@ -141,6 +141,8 @@ def swap(sweep_line_status, event, segE1: Segment, segE2: Segment):
 class EventQueue:
     def __init__(self, events):
         self.queue = events
+        #dictionary to help with lookups bc heapq doesnt use heap sorting
+        self.intersection_helper = {}
         heapq.heapify(self.queue)
     
     def min(self):
@@ -150,10 +152,13 @@ class EventQueue:
         return self.queue[0]
 
     def insert(self, event):
+        if (event.segment and event.segment2): self.intersection_helper[(event.point.x(),event.point.y())] = True
         heapq.heappush(self.queue, event)
 
     def member(self, event):
-        return event in self.queue
+        if (event.segment and event.segment2): 
+            return self.intersection_helper[(event.point.x(),event.point.y())] == True
+        return False
 
     def is_leftendpoint(self, event: Event):
         return (event.segment2 is None and event.segment.leftEndPoint() == event.point)
