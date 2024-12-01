@@ -110,6 +110,9 @@ class PolygonIntersectionGui:
             results_display.insert(tk.END, "No intersection points found.\n")
 
     def bentley_ottman(self, draw, poly_points1, poly_points2):
+        self.intersection_plot.delete(1.0, tk.END)
+        self.intersection_noplot.delete(1.0, tk.END)
+        
         start_time = time.perf_counter()
 
         poly1_points = self.parse_points(poly_points1.get())
@@ -118,15 +121,18 @@ class PolygonIntersectionGui:
             return
 
         events = intersection_BentleyOttman(self.ax, poly1_points, poly2_points, draw)
-
-        end_time = time.perf_counter()
-        elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
-        self.bentley_ottman_time_label.config(text=f"{elapsed_time:.2f} ms")
+        if (not draw):
+            end_time = time.perf_counter()
+            elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
+            self.bentley_ottman_time_label.config(text=f"{elapsed_time:.2f} ms")
 
         if (draw): self.display_intersection_points(events, self.intersection_plot)
         else: self.display_intersection_points(events, self.intersection_noplot)
 
     def sutherland_hodgman(self, draw, poly_points1, poly_points2):
+        self.intersection_plot.delete(1.0, tk.END)
+        self.intersection_noplot.delete(1.0, tk.END)
+
         #    Create polygon from first set of points.
         poly1_points = self.parse_points(poly_points1.get())
 
@@ -153,11 +159,15 @@ class PolygonIntersectionGui:
 
         events = polygon_pts.intersection_SH(polygon_pts, clipper_pts)
         
-        end_time = time.perf_counter()
-        elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
-        self.sutherland_hodgman_time_label.config(text=f"{elapsed_time:.2f} ms")
+        if (not draw):
+            end_time = time.perf_counter()
+            elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
+            self.sutherland_hodgman_time_label.config(text=f"{elapsed_time:.2f} ms")
         
+        final = events[len(events) - 1]
         events[len(events) - 1].plot(self.ax, 'r')
+        if (draw): self.display_intersection_points(final.vertices, self.intersection_plot)
+        else: self.display_intersection_points(final.vertices, self.intersection_noplot)
         
         '''    ANIMATION SEDCTION
         #for e in events:
