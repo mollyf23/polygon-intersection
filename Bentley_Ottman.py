@@ -65,7 +65,7 @@ def intersection_BentleyOttman(ax: Axes, list1, list2, draw):
                 if (draw):
                     draw_intersection_point(ax, event)
                 event_queue.insert(event)
-            if (segB is not None and segE.intersects(segB, True)):
+            if (segB is not None and segB != segA and segE.intersects(segB, True)):
                 event = Event(segE.intersection(segB), segE, segB)
                 if (draw):
                     draw_intersection_point(ax, event)
@@ -152,13 +152,12 @@ class EventQueue:
         return self.queue[0]
 
     def insert(self, event):
-        if (event.segment and event.segment2): self.intersection_helper[(event.point.x(),event.point.y())] = True
+        self.intersection_helper[(event.point.x(), event.point.y())] = event
         heapq.heappush(self.queue, event)
 
     def member(self, event):
-        if (event.segment and event.segment2): 
-            return self.intersection_helper[(event.point.x(),event.point.y())] == True
-        return False
+        found_event = self.intersection_helper[(event.point.x(), event.point.y())]
+        return found_event is not None
 
     def is_leftendpoint(self, event: Event):
         return (event.segment2 is None and event.segment.leftEndPoint() == event.point)
