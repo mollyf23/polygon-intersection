@@ -1,9 +1,9 @@
 from matplotlib.axes import Axes
 from gui_helpers import draw_left_endpoint, draw_right_endpoint, draw_intersection_point,draw_polygon, draw_intersection_event
 import heapq
-from sortedcontainers import SortedList
 from Point import Point
 from Segment import Segment
+from SweepLineStatus import SweepLineStatus
 
 class Event:
     point: Point
@@ -65,7 +65,7 @@ def intersection_BentleyOttman(ax: Axes, list1, list2, draw):
                 if (draw):
                     draw_intersection_point(ax, event)
                 event_queue.insert(event)
-            if (segB is not None and segE.intersects(segB, True)):
+            if (segB is not None and segB != segA and segE.intersects(segB, True)):
                 event = Event(segE.intersection(segB), segE, segB)
                 if (draw):
                     draw_intersection_point(ax, event)
@@ -107,8 +107,7 @@ def intersection_BentleyOttman(ax: Axes, list1, list2, draw):
                     event_queue.insert(event)
                     if (draw):
                         draw_intersection_point(ax, event)
-            #swap the two intersecting lines
-            sweep_line_status.swap(event, segE1, segE2)
+            swap(sweep_line_status, event, segE1, segE2)
     return output
 
 
@@ -128,52 +127,16 @@ def segment_builder(list, endpoints):
         endpoints.append(endpoint1)
         endpoints.append(endpoint2)
 
-class SweepLineStatus:
-    def __init__(self):
-        #store segment info by using the endpoint info
-        self.segments = SortedList(key=lambda segment: (
-        segment.leftEndPoint().y(),
-        segment.rightEndPoint().y(), 
-        segment.leftEndPoint().x(),  
-        segment.rightEndPoint().x()
-        ))
 
-    def insert(self, segment: Segment):
-        self.segments.add(segment)
 
-    def delete(self, segment: Segment):
-        i = self.segments.index(segment)
-        del self.segments[i]
+def swap(sweep_line_status, event, segE1: Segment, segE2: Segment):
+        sweep_line_status.delete(segE2)
+        sweep_line_status.delete(segE1)
+        segE1.endPoints[0] = event.point
+        segE2.endPoints[0] = event.point
+        sweep_line_status.insert(segE1)
+        sweep_line_status.insert(segE2)
 
-    #find segment above
-    def above(self, segment: Segment):
-        i = self.segments.index(segment)
-        if (i < len(self.segments)-1):
-            return self.segments[i+1]
-        return None
-
-    #find segment below
-    def below(self, segment: Segment):
-        i = self.segments.index(segment)
-        if (0 < i):
-            return self.segments[i-1]
-        return None
-
-    def swap(self, event, segE1: Segment, segE2: Segment):
-            if (self.segments.index(segE1) > self.segments.index(segE2)):
-                self.delete(segE1)
-                self.delete(segE2)
-                segE1.endPoints[0] = event.point
-                segE2.endPoints[0] = event.point
-                self.insert(segE2)
-                self.insert(segE1)
-            else:
-                self.delete(segE2)
-                self.delete(segE1)
-                segE1.endPoints[0] = event.point
-                segE2.endPoints[0] = event.point
-                self.insert(segE1)
-                self.insert(segE2)
         
 class EventQueue:
     def __init__(self, events):

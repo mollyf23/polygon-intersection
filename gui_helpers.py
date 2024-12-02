@@ -65,7 +65,6 @@ def draw_right_endpoint(ax: Axes, event):
     line: Line2D = getLineByEndpoints(ax, event.segment.leftEndPoint(), event.segment.rightEndPoint(), "red")
     if (line): line.remove() #remove red line because its done
     point = draw_point(ax, event.point, color="green")
-    plt.pause(.5)
     line = draw_segment(ax, event.segment, color="green")
     point.remove() #remove point at end of event
     line.set_color("black")
