@@ -37,18 +37,10 @@ def draw_intersection_point(ax, event):
     line2: Line2D = getLineByEndpoints(ax, event.segment2.leftEndPoint(), event.segment2.rightEndPoint(),"red") #segment 
     if (line): line.remove()
     if (line2): line2.remove()
-    segnew = Segment(event.segment.rightEndPoint(), event.point) #new version of the segment before intersection
-    seg2new = Segment(event.segment2.rightEndPoint(), event.point) #new version of the segment before intersection
-    draw_segment(ax, segnew)
-    draw_segment(ax, seg2new)
     return
 
 #remove segments from before the intersection
 def draw_intersection_event(ax, event):
-    line: Line2D = getLineByEndpoints(ax, event.segment.leftEndPoint(), event.point, "red") #segment until intersection
-    line2: Line2D = getLineByEndpoints(ax, event.segment2.leftEndPoint(), event.point, "red") #segment until intersection
-    if (line): line.remove()
-    if (line2): line2.remove()
     segEnew = Segment(event.point, event.segment.rightEndPoint()) #new version of the segment after intersection
     segAnew = Segment(event.point, event.segment2.rightEndPoint()) #new version of the segment after intersection
     draw_segment(ax, segEnew)
@@ -63,11 +55,13 @@ def draw_left_endpoint(ax: Axes, event):
 
 def draw_right_endpoint(ax: Axes, event):
     line: Line2D = getLineByEndpoints(ax, event.segment.leftEndPoint(), event.segment.rightEndPoint(), "red")
-    if (line): line.remove() #remove red line because its done
     point = draw_point(ax, event.point, color="green")
-    line = draw_segment(ax, event.segment, color="green")
-    point.remove() #remove point at end of event
-    line.set_color("black")
+    line.set_color("green")
+    ax.figure.canvas.draw()  
+    ax.figure.canvas.flush_events()  
+    plt.pause(1)
+    point.remove() 
+    line.remove()
     return
 
 def getLineByEndpoints(ax, leftEndpoint, rightEndpoint, color):

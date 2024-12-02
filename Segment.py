@@ -29,6 +29,32 @@ class Segment:
             raise TypeError("The input value has to be a Segment object.")
         
         return self.leftEndPoint == sgmnt.leftEndPoint and self.rightEndPoint == sgmnt.rightEndPoint
+    
+    def comparator(self, segment2):
+        if self.leftEndPoint().y() < segment2.leftEndPoint().y():
+         return -1
+        elif self.leftEndPoint().y() > segment2.leftEndPoint().y():
+           return 1
+        else:
+            # x-coordinates of left endpoints
+            if self.leftEndPoint().x() < segment2.leftEndPoint().x():
+                return -1
+            elif self.leftEndPoint().x() > segment2.leftEndPoint().x():
+                return 1
+            else:
+                # y-coordinates of right endpoints
+                if self.rightEndPoint().y() < segment2.rightEndPoint().y():
+                    return -1
+                elif self.rightEndPoint().y() > segment2.rightEndPoint().y():
+                    return 1
+                else:
+                    # x-coordinates of right endpoints
+                    if self.rightEndPoint().x() < segment2.rightEndPoint().x():
+                        return -1
+                    elif self.rightEndPoint().x() > segment2.rightEndPoint().x():
+                        return 1
+                    else:
+                        return 0
 
     #    Determines if the given point is to the left or right of the segment.
     def side(self, pt):

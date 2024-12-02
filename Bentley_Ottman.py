@@ -12,8 +12,16 @@ class Event:
 
     def __init__(self, point: Point, segment: Segment, segment2: Segment = None):
         self.point = point
-        self.segment = segment
-        self.segment2 = segment2
+        if (segment and segment2):
+            if (segment.comparator(segment2) < 0):
+                self.segment = segment2
+                self.segment2 = segment
+            else:
+                self.segment = segment
+                self.segment2 = segment2
+        else:
+            self.segment = segment
+            self.segment2 = None
 
     #override less than function for event queue sorting
     def __lt__(self, other):
@@ -91,23 +99,25 @@ def intersection_BentleyOttman(ax: Axes, list1, list2, draw):
             output.append(event.point)
             segE1 = event.segment
             segE2 = event.segment2
-            segA = sweep_line_status.above(segE1)
-            segB = sweep_line_status.below(segE2)
+            swap(sweep_line_status, event, segE1, segE2)
+
+            segA = sweep_line_status.above(segE2)
+            segB = sweep_line_status.below(segE1)
             if (draw): draw_intersection_event(ax, event)
              #find intersection events
-            if (segA is not None and segE1.intersects(segA, True)):
-                event = Event(segE1.intersection(segA), segE1, segA)
+            if (segA is not None and segE2.intersects(segA, True)):
+                event = Event(segE2.intersection(segA), segE2, segA)
                 if (not event_queue.member(event)):
                     if (draw):
                         draw_intersection_point(ax, event)
                     event_queue.insert(event)
-            if (segB is not None and segE2.intersects(segB, True)):
-                event = Event(segE2.intersection(segB), segE2, segB)
+            if (segB is not None and segE1.intersects(segB, True)):
+                event = Event(segE1.intersection(segB), segE1, segB)
                 if (not event_queue.member(event)):
                     event_queue.insert(event)
                     if (draw):
                         draw_intersection_point(ax, event)
-            swap(sweep_line_status, event, segE1, segE2)
+            
     return output
 
 
@@ -141,6 +151,7 @@ def swap(sweep_line_status, event, segE1: Segment, segE2: Segment):
 class EventQueue:
     def __init__(self, events):
         self.queue = events
+        self.intersection_helper = {}
         heapq.heapify(self.queue)
     
     def min(self):
@@ -150,10 +161,11 @@ class EventQueue:
         return self.queue[0]
 
     def insert(self, event):
+        self.intersection_helper[(event.point.x(), event.point.y())] = True
         heapq.heappush(self.queue, event)
 
     def member(self, event):
-        return event in self.queue
+        return self.intersection_helper.get((event.point.x(), event.point.y())) == True
 
     def is_leftendpoint(self, event: Event):
         return (event.segment2 is None and event.segment.leftEndPoint() == event.point)
