@@ -65,7 +65,7 @@ def intersection_BentleyOttman(ax: Axes, list1, list2, draw):
                 if (draw):
                     draw_intersection_point(ax, event)
                 event_queue.insert(event)
-            if (segB is not None and segB != segA and segE.intersects(segB, True)):
+            if (segB is not None and segA is not None and segB != segA and segE.intersects(segB, True)):
                 event = Event(segE.intersection(segB), segE, segB)
                 if (draw):
                     draw_intersection_point(ax, event)
