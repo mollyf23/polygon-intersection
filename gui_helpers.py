@@ -14,7 +14,7 @@ def draw_point(ax: Axes, point: Point, color="red", marker="o"):
     plt.pause(1)
     return point[0]  
 
-def draw_segment(ax: Axes, segment: Segment, color="red", linewidth=1):
+def draw_segment(ax: Axes, segment: Segment, color="red", linewidth=2):
     (x1, y1) = (segment.leftEndPoint().x(), segment.leftEndPoint().y())
     (x2, y2) = (segment.rightEndPoint().x(), segment.rightEndPoint().y())
     line: Line2D = ax.plot([x1, x2], [y1, y2], color=color, linewidth=linewidth)

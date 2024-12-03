@@ -25,15 +25,19 @@ class Event:
 
     #override less than function for event queue sorting
     def __lt__(self, other):
-        #if two endpoints have the same x value, prioritize left endpoints
         if (self.point.x() == other.point.x()):
-            if (self.point == self.segment.leftEndPoint()):
-                return True
-            elif (other.point == other.segment.leftEndPoint()):
+            #right endpoints should go last so we dont delete stuff before its used 
+            if (self.point == self.segment.rightEndPoint() and other.point != other.segment.rightEndPoint()):
                 return False
-            else: return self.point.y() < other.point.y()
-            
-        return self.point.x() < other.point.x()
+            elif (self.point != self.segment.rightEndPoint() and other.point == other.segment.rightEndPoint()):
+                return True
+            else:
+                if (self.segment.rightEndPoint().x() == other.segment.rightEndPoint().x()):
+                    return self.point.y() < other.point.y()
+                else: return self.segment.rightEndPoint().x() < other.segment.rightEndPoint().x()
+                
+        else:    
+            return self.point.x() < other.point.x()
     
     #override equal function for member function 
     def __eq__(self, other):
@@ -73,7 +77,7 @@ def intersection_BentleyOttman(ax: Axes, list1, list2, draw):
                 if (draw):
                     draw_intersection_point(ax, event)
                 event_queue.insert(event)
-            if (segB is not None and segA is not None and segB != segA and segE.intersects(segB, True)):
+            if ((segB is not None and segE.intersects(segB, True)) and ((segA is None) or (segA is not None and segB != segA))):
                 event = Event(segE.intersection(segB), segE, segB)
                 if (draw):
                     draw_intersection_point(ax, event)
@@ -128,9 +132,10 @@ def segment_builder(list, endpoints):
         point1 = Point(x1,y1)
         point2 = Point(x2,y2)
         #sort points left to right
-        if (point1.x() < point2.x()):
+        if (point1.x() < point2.x() or (point1.x() == point2.x() and point1.y() < point2.y())):
             segment = Segment(point1,point2)
-        else: segment = Segment(point2,point1)
+        else:       
+            segment = Segment(point2,point1)
         
         endpoint1 = Event(point1, segment)
         endpoint2 = Event(point2, segment)

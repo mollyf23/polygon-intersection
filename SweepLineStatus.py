@@ -84,7 +84,7 @@ class SweepLineStatus:
                 return current.segment
             else: 
                 parent = node.parent
-                while parent and self.comparator(segment, parent.segment) > 0:
+                while parent and self.comparator(segment, parent.segment) >= 0:
                     parent = parent.parent
                 if (parent): return parent.segment
         return None
@@ -99,7 +99,7 @@ class SweepLineStatus:
                 return current.segment
             else: 
                 parent = node.parent
-                while parent and self.comparator(segment, parent.segment) < 0:
+                while parent and self.comparator(segment, parent.segment) <= 0:
                     parent = parent.parent
                 if (parent): return parent.segment
         return None
