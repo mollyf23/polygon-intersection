@@ -112,14 +112,12 @@ class PolygonIntersectionGui:
     def bentley_ottman(self, draw, poly_points1, poly_points2):
         self.intersection_plot.delete(1.0, tk.END)
         self.intersection_noplot.delete(1.0, tk.END)
-        
-        start_time = time.perf_counter()
-
         poly1_points = self.parse_points(poly_points1.get())
         poly2_points = self.parse_points(poly_points2.get())
         if not poly1_points or not poly2_points:
             return
 
+        start_time = time.perf_counter()
         events = intersection_BentleyOttman(self.ax, poly1_points, poly2_points, draw)
         if (not draw):
             end_time = time.perf_counter()
@@ -137,49 +135,45 @@ class PolygonIntersectionGui:
         poly1_points = self.parse_points(poly_points1.get())
 
         pts = []
-        for i in range(0, len(poly1_points[0]), 2):
-            pts.append(Point(poly1_points[0][i], poly1_points[0][i + 1]))
+        for p in poly1_points:
+            pts.append(Point(p[0], p[1]))
 
         clipper_pts = Polygon(pts)
 
         #    Create polygon from first set of points.
         poly2_points = self.parse_points(poly_points2.get())
         pts = []
-        for i in range(0, len(poly2_points[0]), 2):
-            pts.append(Point(poly2_points[0][i], poly2_points[0][i + 1]))
+        for p in poly2_points:
+            pts.append(Point(p[0], p[1]))
         
         polygon_pts = Polygon(pts)
         
-        #    Draw the original two polygons.
-        self.ax.clear()
-        clipper_pts.plot(self.ax, "g")
-        polygon_pts.plot(self.ax, "b")
+        if (draw):
+            #    Draw the original two polygons.
+            self.ax.clear()
+            clipper_pts.plot(self.ax, "g")
+            polygon_pts.plot(self.ax, "b")
 
         start_time = time.perf_counter()
-
         events = polygon_pts.intersection_SH(polygon_pts, clipper_pts)
         
         if (not draw):
             end_time = time.perf_counter()
             elapsed_time = (end_time - start_time) * 1000  # Convert to milliseconds
             self.sutherland_hodgman_time_label.config(text=f"{elapsed_time:.2f} ms")
-        
+        else:
+            #for e in events:
+            for i in range(len(events)):
+                if i != 0:
+                    events[i - 1].clearPlot()
+                
+                events[i].plot(self.ax, 'r')
+                self.ax.figure.canvas.flush_events()  
+                plt.pause(1)
         final = events[len(events) - 1]
-        events[len(events) - 1].plot(self.ax, 'r')
+
         if (draw): self.display_intersection_points(final.vertices, self.intersection_plot)
         else: self.display_intersection_points(final.vertices, self.intersection_noplot)
-        
-        '''    ANIMATION SEDCTION
-        #for e in events:
-        for i in range(len(events)):
-            if i != 0:
-                events[i - 1].clearPlot()
-                
-            events[i].plot(self.ax, 'r')
-        
-            plt.pause(2)
-            #self.ax.clear()
-        '''
         
 if __name__ == "__main__":
     root = tk.Tk()
