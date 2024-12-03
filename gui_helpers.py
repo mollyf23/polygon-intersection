@@ -56,12 +56,12 @@ def draw_left_endpoint(ax: Axes, event):
 def draw_right_endpoint(ax: Axes, event):
     line: Line2D = getLineByEndpoints(ax, event.segment.leftEndPoint(), event.segment.rightEndPoint(), "red")
     point = draw_point(ax, event.point, color="green")
-    line.set_color("green")
+    if (line): line.set_color("green")
     ax.figure.canvas.draw()  
     ax.figure.canvas.flush_events()  
     plt.pause(1)
     point.remove() 
-    line.remove()
+    if (line): line.remove()
     return
 
 def getLineByEndpoints(ax, leftEndpoint, rightEndpoint, color):
