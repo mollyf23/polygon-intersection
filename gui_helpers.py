@@ -37,6 +37,9 @@ def draw_intersection_point(ax, event):
     line2: Line2D = getLineByEndpoints(ax, event.segment2.leftEndPoint(), event.segment2.rightEndPoint(),"red") #segment 
     if (line): line.remove()
     if (line2): line2.remove()
+    ax.figure.canvas.draw()  
+    ax.figure.canvas.flush_events()  
+    plt.pause(1)
     return
 
 #remove segments from before the intersection
