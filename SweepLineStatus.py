@@ -22,6 +22,8 @@ class SweepLineStatus:
 
     # Perform a right rotation
     def rotate_right(self, node):
+        if not node or not node.left:  # Check if the node or left child is None
+            return None  # Or raise an exception if appropriate
         left_child = node.left
         left_right_subtree = left_child.right
 
@@ -43,6 +45,8 @@ class SweepLineStatus:
 
     # Perform a left rotation
     def rotate_left(self, node):
+        if not node or not node.right:  # Check if the node or right child is None
+            return None  # Or raise an exception if appropriate
         right_child = node.right
         right_left_subtree = right_child.left
 
@@ -76,10 +80,10 @@ class SweepLineStatus:
 
         if self.comparator(segment, node.segment) < 0:
             node.left = self.insert_node(node.left, segment)
-            node.left.parent = node
+            if (node.left): node.left.parent = node
         else:
             node.right = self.insert_node(node.right, segment)
-            node.right.parent = node
+            if (node.right): node.right.parent = node
 
         node.height = 1 + max(self.get_height(node.left), self.get_height(node.right))
 
